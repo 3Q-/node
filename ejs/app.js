@@ -4,62 +4,61 @@
 var express = require('express'),
     http = require('http'),
     path = require('path'),
-    ejs = require('ejs');
-    
-var app = express();
+    ejs = require('ejs'),
+    app = express();
 
+//环境变量
 app.configure(function(){
-    app.set('port', process.env.PORT || 80);
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'ejs');
-    app.set('view engine', 'html');
-    app.engine('.html', ejs.__express);
-
+    app.set('port', process.env.PORT || 80); //端口号
+    app.set('view engine', 'ejs'); //ejs 模版引擎
+    app.set('view engine', 'html'); //这个不懂
+    app.engine('.html', ejs.__express); //过滤.html文件 不用加后缀名
     app.use(express.favicon());
-    //app.use(express.logger('dev'));
-    app.use(express.bodyParser());
-    app.use(express.methodOverride());
     app.use(app.router);
-    app.use(express.static(path.join(__dirname, 'public')));
-    //app.use(express.static(__dirname, 'public'));
-    app.use(express.logger());
-    app.use(function(req, res){
-        res.send('Hello');
-    });
+});
+
+//开发模式 
+app.configure('development', function(){
+    app.use(express.errorHandler());
 });
 
 ejs.open = '{{';
 ejs.close = '}}';
 
+app.all('/*', function(req, res){
 
-app.configure('development', function(){
-  app.use(express.errorHandler());
-});
-
-app.all('/*', function(req, res, next){
-
-    var path = req.path;
-
-    if( path.indexOf('.') < 0 ){
-        path = path.replace('/', '');
-        if( path === "" ) path = 'index';
-
-        if(path == 'index'){
-            var op = {
-                    title :path,
-                    ary : [1,2,3,4,5,6]
-                }
-            res.render( path.replace('/', '-'), op);
-            return;
+    var path = req.path.split('/');  //路径切割 第一个为空
+    var url = path[1] ? path[1] : 'index'; //工程文件名, 没有默认搭建站点主页
+    var web = path[2] ? path[2] : 'index';  //页面名称 没有就出来该工程的主页
+    
+    //判断是页面还是static文件 .js .css
+    if ( req.path.indexOf('.' ) < 0 ){
+        if(path.length > 3){
+            //如果用了.com/demo/web/web这种路径  模板用 web_web.html 
+            web = path.slice(2).join('_');
         }
-
-        res.render( path.replace('/', '-'), { title: path.replace('/', '-') });
-
+        if( url == 'index'){  //首页路径
+            app.set('views', __dirname + '\\views');
+        }else{  //工程路径
+            app.set('views', __dirname + '\\projects\\'+url );
+        }
+        res.render( web , { title: web });
     }else{
-        next();
+        
+        //后缀名判断文件类型
+        var filetype = path[path.length - 1].split('.');
+
+        //图片都是访问img文件
+        if( filetype[1] === 'png' || filetype[1] === 'gif' ||  filetype[1] === 'jpg' || filetype[1] === 'bmp' ){ filetype[1] = 'img' }
+
+        if( url == filetype[1] ){//打开的是站点首页的路径
+            res.sendfile( __dirname + '\\public\\'+ filetype[1] +'\\'+ path[path.length - 1]);
+        }else{ //工程文件的static文件路径
+            res.sendfile( __dirname + '\\projects\\'+ url +'\\'+ filetype[1] +'\\'+ path[path.length - 1]);
+        }
     }
 });
 
 http.createServer(app).listen(app.get('port'), function(){
-  console.log("Express server listening on port " + app.get('port'));
+    console.log("Express server listening on port " + app.get('port'));
 });
