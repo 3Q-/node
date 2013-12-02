@@ -4,7 +4,6 @@
  */
 
 
-
 exports.index = function(req, res){
 
     console.log(req.path);
@@ -13,6 +12,7 @@ exports.index = function(req, res){
     if( path.indexOf('.') < 0 ){
         res.render( path, { title: path });
     }else{
+        app.use(express.static(path.join(__dirname, 'public')));
         res.end();
     }
 };

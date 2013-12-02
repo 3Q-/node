@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title></title>
+    <style type="text/css">
+        .link{display:inline-block;width:100%;height:30px; line-height:30px;text-decoration:none;color:#555;font-size:24px;background:none;}
+        .hover{background:red;color:#fff;}
+    </style>
+    <script type="text/javascript" src="js/zepto.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            var $id = $('body');
+            $id.on('touchstart','.link',function(){
+                $(this).addClass('hover');
+                //return false;
+            });
+
+            $id.on('touchend','.link',function(){
+                $('.link').removeClass('hover');
+                //localtion.href = $(this).attr('href');
+                return false;
+            });
+        });
+    </script>
+</head>
+<body>

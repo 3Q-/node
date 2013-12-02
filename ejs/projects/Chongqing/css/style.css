@@ -1,0 +1,7 @@
+body{font:12px Verdana, Arial, Helvetica, sans-serif,"微软雅黑","宋体"}
+.w_web{width:1000px;margin:0 auto;}
+
+.w_head{height:25px;background:#f6f6f6;color:#727171;}
+.w_head h4{float: left;display: inline;line-height: 25px;}
+.sitemap {float: right;display: inline;}
+.sitemap li{float: left;display: inline;line-height: 25px; background:url(../img/list.gif) no-repeat 0 center;padding-left: 10px;margin-left:15px;}

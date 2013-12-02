@@ -25,14 +25,20 @@ app.configure('development', function(){
 ejs.open = '{{';
 ejs.close = '}}';
 
+var mainUrl;
 app.all('/*', function(req, res){
 
     var path = req.path.split('/');  //路径切割 第一个为空
     var url = path[1] ? path[1] : 'index'; //工程文件名, 没有默认搭建站点主页
     var web = path[2] ? path[2] : 'index';  //页面名称 没有就出来该工程的主页
-    
+
+    if( path.length ==2 ){
+        mainUrl = path[1];
+    }
+
     //判断是页面还是static文件 .js .css
-    if ( req.path.indexOf('.' ) < 0 ){
+    if ( req.path.indexOf('.' ) < 0 || req.path.indexOf('.html') > 0 ){
+
         if(path.length > 3){
             //如果用了.com/demo/web/web这种路径  模板用 web_web.html 
             web = path.slice(2).join('_');
@@ -47,12 +53,17 @@ app.all('/*', function(req, res){
         
         //后缀名判断文件类型
         var filetype = path[path.length - 1].split('.');
-
         //图片都是访问img文件
         if( filetype[1] === 'png' || filetype[1] === 'gif' ||  filetype[1] === 'jpg' || filetype[1] === 'bmp' ){ filetype[1] = 'img' }
 
         if( url == filetype[1] ){//打开的是站点首页的路径
-            res.sendfile( __dirname + '\\public\\'+ filetype[1] +'\\'+ path[path.length - 1]);
+            
+            if( path.length == 3 ){
+                url = mainUrl;
+                res.sendfile( __dirname + '\\projects\\'+ url +'\\'+ filetype[1] +'\\'+ path[path.length - 1]);
+            }else{
+                res.sendfile( __dirname + '\\public\\'+ filetype[1] +'\\'+ path[path.length - 1]);
+            }
         }else{ //工程文件的static文件路径
             res.sendfile( __dirname + '\\projects\\'+ url +'\\'+ filetype[1] +'\\'+ path[path.length - 1]);
         }
